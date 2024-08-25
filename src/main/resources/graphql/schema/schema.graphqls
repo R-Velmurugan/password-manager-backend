@@ -1,0 +1,14 @@
+type Query{
+    passwords : [Password]
+}
+type Password{
+    uuid : String
+    domain : String
+    url : String
+    username : String
+    email : String
+    password : String
+    creationDate : String
+    updationDate : String
+    notes : String
+}
