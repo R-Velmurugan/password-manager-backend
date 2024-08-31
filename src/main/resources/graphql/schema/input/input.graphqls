@@ -1,0 +1,12 @@
+input InputPassword{
+    domain : String!
+    url : String!
+    username : String!
+    email : String!
+    password : String!
+    notes : String
+}
+
+type Mutation{
+    insertPassword(passwordInput : InputPassword!) : Password
+}
