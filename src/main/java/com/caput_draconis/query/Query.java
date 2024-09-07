@@ -29,4 +29,10 @@ public class Query {
     public Password insertPassword(@Argument("passwordInput") InputPassword passwordInput){
         return passwordService.savePassword(passwordInput);
     }
+
+    @QueryMapping
+    public Password password(@Argument("uuid") String uuid){
+        return passwordService.getPasswordByUuid(uuid);
+    }
+
 }

@@ -1,5 +1,6 @@
 type Query{
     passwords : [Password]
+    password(uuid : String) : Password
 }
 type Password{
     uuid : String

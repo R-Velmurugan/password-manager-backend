@@ -8,5 +8,5 @@ import java.util.List;
 public interface PasswordService {
     List<Password> getAllPasswords();
     Password savePassword(InputPassword password);
-
+    Password getPasswordByUuid(String uuid);
 }
