@@ -49,6 +49,12 @@ public class PasswordServiceImpl implements PasswordService {
         return password;
     }
 
+    @Override
+    public Password getPasswordByUuid(String uuid){
+        PasswordEntity passwordEntity = passwordRepository.getReferenceById(uuid);
+        return convertPasswordEntityToPasswordDto(passwordEntity);
+    }
+
     private PasswordEntity convertPasswordToPasswordEntity(Password password){
         return PasswordEntity.builder()
                 .uuid(password.getUuid())
