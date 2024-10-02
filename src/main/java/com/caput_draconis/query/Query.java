@@ -30,6 +30,11 @@ public class Query {
         return passwordService.savePassword(passwordInput);
     }
 
+    @MutationMapping
+    public Boolean deletePassword(@Argument("uuid") String uuid){
+        passwordService.deletePasswordByUuid(uuid);
+        return true;
+    }
     @QueryMapping
     public Password password(@Argument("uuid") String uuid){
         return passwordService.getPasswordByUuid(uuid);

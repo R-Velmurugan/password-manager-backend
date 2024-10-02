@@ -9,4 +9,5 @@ public interface PasswordService {
     List<Password> getAllPasswords();
     Password savePassword(InputPassword password);
     Password getPasswordByUuid(String uuid);
+    void deletePasswordByUuid(String uuid);
 }

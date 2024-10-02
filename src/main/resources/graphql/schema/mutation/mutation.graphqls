@@ -9,4 +9,5 @@ input InputPassword{
 
 type Mutation{
     insertPassword(passwordInput : InputPassword!) : Password
+    deletePassword(uuid : String!) : Boolean
 }

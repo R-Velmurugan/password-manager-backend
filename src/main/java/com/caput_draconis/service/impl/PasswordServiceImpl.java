@@ -54,6 +54,10 @@ public class PasswordServiceImpl implements PasswordService {
         PasswordEntity passwordEntity = passwordRepository.getReferenceById(uuid);
         return convertPasswordEntityToPasswordDto(passwordEntity);
     }
+    @Override
+    public void deletePasswordByUuid(String uuid){
+        passwordRepository.deleteById(uuid);
+    }
 
     private PasswordEntity convertPasswordToPasswordEntity(Password password){
         return PasswordEntity.builder()
