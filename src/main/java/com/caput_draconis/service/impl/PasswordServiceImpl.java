@@ -26,7 +26,7 @@ public class PasswordServiceImpl implements PasswordService {
     }
     @Override
     public List<Password> getAllPasswords() {
-        List<PasswordEntity> allPasswords = passwordRepository.findAll();
+        List<PasswordEntity> allPasswords = passwordRepository.findAllActivePasswords();
 
         return allPasswords.stream()
                 .map(this::convertPasswordEntityToPasswordDto)
@@ -56,8 +56,9 @@ public class PasswordServiceImpl implements PasswordService {
         return convertPasswordEntityToPasswordDto(passwordEntity);
     }
     @Override
-    public void deletePasswordByUuid(String uuid){
-        passwordRepository.deleteById(uuid);
+    @Transactional
+    public Boolean deletePasswordAndMoveToTrash(String uuid){
+        return passwordRepository.deletePasswordAndMoveToTrash(uuid) == 1;
     }
 
     @Override
@@ -81,6 +82,7 @@ public class PasswordServiceImpl implements PasswordService {
                         convertStringToDate(password.getUpdationDate())
                 )
                 .notes(password.getNotes())
+                .isDeleted(false)
                 .build();
     }
 

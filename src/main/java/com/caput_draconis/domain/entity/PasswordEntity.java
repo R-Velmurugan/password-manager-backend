@@ -27,4 +27,5 @@ public class PasswordEntity {
     private Date created_at;
     private Date updated_at;
     private String notes;
+    private Boolean isDeleted;
 }
