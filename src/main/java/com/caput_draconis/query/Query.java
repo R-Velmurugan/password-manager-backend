@@ -32,7 +32,7 @@ public class Query {
 
     @MutationMapping
     public Boolean deletePassword(@Argument("uuid") String uuid){
-        passwordService.deletePasswordByUuid(uuid);
+        passwordService.deletePasswordAndMoveToTrash(uuid);
         return true;
     }
     @QueryMapping
