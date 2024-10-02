@@ -40,4 +40,9 @@ public class Query {
         return passwordService.getPasswordByUuid(uuid);
     }
 
+    @MutationMapping
+    public Boolean updatePassword(@Argument("uuid") String uuid , @Argument("password") String password){
+        return passwordService.updatePassword(uuid , password);
+    }
+
 }

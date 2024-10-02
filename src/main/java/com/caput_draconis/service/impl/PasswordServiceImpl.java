@@ -7,6 +7,7 @@ import com.caput_draconis.repository.PasswordRepository;
 import com.caput_draconis.service.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -57,6 +58,12 @@ public class PasswordServiceImpl implements PasswordService {
     @Override
     public void deletePasswordByUuid(String uuid){
         passwordRepository.deleteById(uuid);
+    }
+
+    @Override
+    @Transactional
+    public Boolean updatePassword(String uuid , String password){
+        return passwordRepository.updatePasswordEntityByUuid(uuid , password) == 1;
     }
 
     private PasswordEntity convertPasswordToPasswordEntity(Password password){
