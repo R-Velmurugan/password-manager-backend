@@ -25,8 +25,8 @@ public class PasswordServiceImpl implements PasswordService {
         this.passwordRepository = passwordRepository;
     }
     @Override
-    public List<Password> getAllPasswords() {
-        List<PasswordEntity> allPasswords = passwordRepository.findAllActivePasswords();
+    public List<Password> getAllActiveOrTrashPasswords(Boolean isActive) {
+        List<PasswordEntity> allPasswords = passwordRepository.findAllActiveOrTrashPasswords(isActive);
 
         return allPasswords.stream()
                 .map(this::convertPasswordEntityToPasswordDto)
@@ -57,8 +57,8 @@ public class PasswordServiceImpl implements PasswordService {
     }
     @Override
     @Transactional
-    public Boolean deletePasswordAndMoveToTrash(String uuid){
-        return passwordRepository.deletePasswordAndMoveToTrash(uuid) == 1;
+    public Boolean movePasswordToTrash(String uuid){
+        return passwordRepository.movePasswordToTrash(uuid) == 1;
     }
 
     @Override

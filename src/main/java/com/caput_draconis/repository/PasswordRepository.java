@@ -12,13 +12,17 @@ import java.util.List;
 
 @Repository
 public interface PasswordRepository extends JpaRepository<PasswordEntity , String> {
-    @Query("SELECT password FROM PasswordEntity password WHERE password.isDeleted = false ORDER BY password.domain_name")
-    List<PasswordEntity> findAllActivePasswords();
+    @Query("SELECT password FROM PasswordEntity password WHERE password.isDeleted != :isActive ORDER BY password.domain_name")
+    List<PasswordEntity> findAllActiveOrTrashPasswords(Boolean isActive);
     @Modifying
     @Query("UPDATE PasswordEntity password SET password.password = :password , password.updated_at = CURRENT_TIMESTAMP WHERE password.uuid = :uuid")
     int updatePasswordEntityByUuid(@Param("uuid")String uuid , @Param("password") String password);
 
     @Modifying
-    @Query("UPDATE PasswordEntity password SET password.isDeleted = true WHERE password.uuid = :uuid")
-    int deletePasswordAndMoveToTrash(@Param("uuid")String uuid);
+    @Query("UPDATE PasswordEntity password SET password.isDeleted = true , password.updated_at = CURRENT_TIMESTAMP WHERE password.uuid = :uuid")
+    int movePasswordToTrash(@Param("uuid")String uuid);
+
+    @Modifying
+    @Query(value = "DELETE FROM passwords WHERE is_deleted = true AND updated_at < (CURRENT_TIMESTAMP - INTERVAL '30 days')", nativeQuery = true)
+    void deletePasswordsFromTrash();
 }
