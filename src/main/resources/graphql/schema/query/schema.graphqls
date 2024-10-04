@@ -1,5 +1,5 @@
 type Query{
-    passwords : [Password]
+    passwords(isActive : Boolean) : [Password]
     password(uuid : String) : Password
 }
 type Password{

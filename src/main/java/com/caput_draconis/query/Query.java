@@ -21,8 +21,8 @@ public class Query {
     }
 
     @QueryMapping
-    public List<Password> passwords(){
-        return passwordService.getAllPasswords();
+    public List<Password> passwords(@Argument("isActive") Boolean isActive){
+        return passwordService.getAllActiveOrTrashPasswords(isActive);
     }
 
     @MutationMapping
@@ -32,8 +32,7 @@ public class Query {
 
     @MutationMapping
     public Boolean deletePassword(@Argument("uuid") String uuid){
-        passwordService.deletePasswordAndMoveToTrash(uuid);
-        return true;
+        return passwordService.movePasswordToTrash(uuid);
     }
     @QueryMapping
     public Password password(@Argument("uuid") String uuid){
