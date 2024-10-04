@@ -44,4 +44,8 @@ public class Query {
         return passwordService.updatePassword(uuid , password);
     }
 
+    @MutationMapping
+    public Boolean restorePassword(@Argument("uuid") String uuid){
+        return passwordService.restorePassword(uuid);
+    }
 }

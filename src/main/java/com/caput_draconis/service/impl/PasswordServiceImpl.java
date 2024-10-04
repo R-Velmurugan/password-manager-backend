@@ -67,6 +67,12 @@ public class PasswordServiceImpl implements PasswordService {
         return passwordRepository.updatePasswordEntityByUuid(uuid , password) == 1;
     }
 
+    @Override
+    @Transactional
+    public Boolean restorePassword(String uuid){
+        return passwordRepository.restorePassword(uuid) == 1;
+    }
+
     private PasswordEntity convertPasswordToPasswordEntity(Password password){
         return PasswordEntity.builder()
                 .uuid(password.getUuid())
