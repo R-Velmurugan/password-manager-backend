@@ -11,4 +11,5 @@ public interface PasswordService {
     Password getPasswordByUuid(String uuid);
     Boolean movePasswordToTrash(String uuid);
     Boolean updatePassword(String uuid , String password);
+    Boolean restorePassword(String uuid);
 }

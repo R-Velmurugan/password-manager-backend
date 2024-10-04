@@ -25,4 +25,8 @@ public interface PasswordRepository extends JpaRepository<PasswordEntity , Strin
     @Modifying
     @Query(value = "DELETE FROM passwords WHERE is_deleted = true AND updated_at < (CURRENT_TIMESTAMP - INTERVAL '30 days')", nativeQuery = true)
     void deletePasswordsFromTrash();
+
+    @Modifying
+    @Query("UPDATE PasswordEntity password SET password.isDeleted = false , password.updated_at = CURRENT_TIMESTAMP WHERE password.uuid = :uuid")
+    int restorePassword(@Param("uuid") String uuid);
 }

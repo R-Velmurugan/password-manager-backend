@@ -11,4 +11,5 @@ type Mutation{
     insertPassword(passwordInput : InputPassword!) : Password
     deletePassword(uuid : String!) : Boolean
     updatePassword(uuid : String! , password : String!) : Boolean
+    restorePassword(uuid : String!) : Boolean
 }
