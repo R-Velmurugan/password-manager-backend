@@ -14,7 +14,7 @@ public class DeletePasswordsFromTrash {
     public DeletePasswordsFromTrash(PasswordRepository passwordRepository){
         this.passwordRepository = passwordRepository;
     }
-    @Scheduled(cron = "0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * ?")
     @Transactional
     public void deletePasswordsFromTrash(){
         passwordRepository.deletePasswordsFromTrash();
