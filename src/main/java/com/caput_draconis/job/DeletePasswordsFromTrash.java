@@ -18,6 +18,5 @@ public class DeletePasswordsFromTrash {
     @Transactional
     public void deletePasswordsFromTrash(){
         passwordRepository.deletePasswordsFromTrash();
-        System.out.println("bello");
     }
 }
