@@ -8,9 +8,11 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -30,7 +32,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
         User user = userService.findUserByUsername(authentication.getName());
         if(Objects.isNull(user)) return null;
         if(!passwordEncoder.matches(password , user.getHashedPassword())) return null;
-        return new UsernamePasswordAuthenticationToken(username , password , null);
+        return new UsernamePasswordAuthenticationToken(username , password , List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     @Override
