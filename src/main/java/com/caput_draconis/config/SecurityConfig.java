@@ -75,7 +75,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
         corsConfiguration.setExposedHeaders(List.of("Set-Cookie"));
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type" , "Cookie"));
-        corsConfiguration.setAllowedMethods(List.of("*"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Include OPTIONS
         corsConfiguration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
