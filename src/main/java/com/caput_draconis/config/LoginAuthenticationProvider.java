@@ -32,7 +32,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
         User user = userService.findUserByUsername(authentication.getName());
         if(Objects.isNull(user)) return null;
         if(!passwordEncoder.matches(password , user.getHashedPassword())) return null;
-        return new UsernamePasswordAuthenticationToken(username , password , List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        return new UsernamePasswordAuthenticationToken(user , null , List.of(new SimpleGrantedAuthority("ROLE_USER")));
     }
 
     @Override

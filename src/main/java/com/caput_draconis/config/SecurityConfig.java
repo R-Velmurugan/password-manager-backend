@@ -1,5 +1,7 @@
 package com.caput_draconis.config;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -7,9 +9,14 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -28,18 +35,32 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf((csrf) -> csrf.disable())
                 .authorizeHttpRequests(
                         (requests) -> requests
-                            .requestMatchers("/login").permitAll()
-                            .requestMatchers("/register").permitAll()
-                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                            .anyRequest().authenticated()
-                        )
-                .httpBasic(Customizer.withDefaults())
+                                .requestMatchers("/login").permitAll()
+                                .requestMatchers("/register").permitAll()
+                                .requestMatchers("/isLoggedIn").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .anyRequest().authenticated()
+                )
                 .formLogin(AbstractHttpConfigurer::disable)
+                .logout(
+                        logout -> logout.logoutUrl("/logout").logoutRequestMatcher(new AntPathRequestMatcher("/logout" , "POST"))
+                                .invalidateHttpSession(true)
+                                .deleteCookies("JSESSIONID")
+                                .addLogoutHandler((request, response, authentication) -> {
+                                    System.out.println("Logout successful");
+                                    SecurityContextHolder.clearContext();
+                                })
+                                .logoutSuccessHandler((request, response, authentication) -> {
+                                    System.out.println("Logout successful");
+                                    response.setStatus(HttpServletResponse.SC_OK);
+                                })
+                )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 );
         ;
         return httpSecurity.build();
+
     }
 
     @Bean
@@ -52,11 +73,26 @@ public class SecurityConfig implements WebMvcConfigurer {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
-        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        corsConfiguration.setExposedHeaders(List.of("Set-Cookie"));
+        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type" , "Cookie"));
         corsConfiguration.setAllowedMethods(List.of("*"));
         corsConfiguration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
+    }
+
+    @Bean
+    public CookieSerializer cookieSerializer() {
+        DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+
+        // IMPORTANT:  Set SameSite and Secure attributes correctly
+        String sameSiteValue = "Lax"; // Or "None" if using HTTPS in production
+        serializer.setSameSite(sameSiteValue);
+        serializer.setCookieName("JSESSIONID");
+//        if (sameSiteValue.equals("None")) { // Only set Secure if SameSite is "None"
+//            serializer.setSecure(true); // Only if using HTTPS
+//        }
+        return serializer;
     }
 }
