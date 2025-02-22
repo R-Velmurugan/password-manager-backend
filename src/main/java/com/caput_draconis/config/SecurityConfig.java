@@ -42,19 +42,6 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
-                .logout(
-                        logout -> logout.logoutUrl("/logout").logoutRequestMatcher(new AntPathRequestMatcher("/logout" , "POST"))
-                                .invalidateHttpSession(true)
-                                .deleteCookies("JSESSIONID")
-                                .addLogoutHandler((request, response, authentication) -> {
-                                    System.out.println("Logout successful");
-                                    SecurityContextHolder.clearContext();
-                                })
-                                .logoutSuccessHandler((request, response, authentication) -> {
-                                    System.out.println("Logout successful");
-                                    response.setStatus(HttpServletResponse.SC_OK);
-                                })
-                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 );
@@ -75,7 +62,7 @@ public class SecurityConfig implements WebMvcConfigurer {
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
         corsConfiguration.setExposedHeaders(List.of("Set-Cookie"));
         corsConfiguration.setAllowedHeaders(List.of("Authorization", "Content-Type" , "Cookie"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Include OPTIONS
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
@@ -85,14 +72,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-
-        // IMPORTANT:  Set SameSite and Secure attributes correctly
-        String sameSiteValue = "Lax"; // Or "None" if using HTTPS in production
-        serializer.setSameSite(sameSiteValue);
-        serializer.setCookieName("JSESSIONID");
-//        if (sameSiteValue.equals("None")) { // Only set Secure if SameSite is "None"
-//            serializer.setSecure(true); // Only if using HTTPS
-//        }
+        serializer.setSameSite("None"); // **Set SameSite to None**
+        serializer.setUseSecureCookie(false); // **Ensure this is false for HTTP**
         return serializer;
     }
 }

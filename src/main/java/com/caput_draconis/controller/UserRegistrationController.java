@@ -14,10 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
@@ -41,26 +38,50 @@ public class UserRegistrationController {
         return HttpStatus.CONFLICT;
     }
 
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(HttpServletRequest request , HttpServletResponse response, @RequestParam String username , @RequestParam String password){
+//        Authentication authentication = loginAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username , password));
+//        if (authentication == null || !authentication.isAuthenticated()) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+//        }
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        HttpSession session = request.getSession(true);
+//        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+//        return ResponseEntity.ok("Login successful");
+//
+//    }
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(HttpServletRequest request , HttpServletResponse response, @RequestParam String username , @RequestParam String password){
+    public ResponseEntity<?> login(HttpServletRequest request, HttpServletResponse response, @RequestParam String username, @RequestParam String password) {
+        // ... your authentication logic
         Authentication authentication = loginAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username , password));
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        HttpSession session = request.getSession(true);
-        session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-        return ResponseEntity.ok("Login successful");
+        String sameSiteValue = "Lax"; // Or "None; Secure" for HTTPS
+        String setCookieValue = "JSESSIONID=" + request.getSession().getId() + "; Path=/; HttpOnly; SameSite=" + sameSiteValue;
+        if (sameSiteValue.equals("None")) {
+            setCookieValue += "; Secure";
+        }
+        response.setHeader("Set-Cookie", setCookieValue);  // Set the cookie directly
 
+        return ResponseEntity.ok("Login successful");
     }
 
     @PostMapping("/isLoggedIn")
     public ResponseEntity<?> isLoggedIn(HttpServletRequest request){
         HttpSession session = request.getSession(false);
-        if(Objects.isNull(session) || Objects.isNull(session.getAttribute("SPRING_SECURITY_CONTEXT"))){
+        if(Objects.isNull(session) || Objects.isNull(session.getAttribute("JSESSIONID"))){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login first");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Session is logged in");
     }
-
+    @GetMapping("/test")
+    public String test(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null && SecurityContextHolder.getContext().getAuthentication() != null) {
+            return "Session is valid! User: " + SecurityContextHolder.getContext().getAuthentication().getName();
+        }
+        return "Session is invalid!";
+    }
 }
