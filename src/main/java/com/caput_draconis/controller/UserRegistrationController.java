@@ -52,26 +52,30 @@ public class UserRegistrationController {
 //    }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(HttpServletRequest request, HttpServletResponse response, @RequestParam String username, @RequestParam String password) {
-        // ... your authentication logic
-        Authentication authentication = loginAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username , password));
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
-        String sameSiteValue = "Lax"; // Or "None; Secure" for HTTPS
-        String setCookieValue = "JSESSIONID=" + request.getSession().getId() + "; Path=/; HttpOnly; SameSite=" + sameSiteValue;
-        if (sameSiteValue.equals("None")) {
-            setCookieValue += "; Secure";
-        }
-        response.setHeader("Set-Cookie", setCookieValue);  // Set the cookie directly
+    public String login(@RequestParam String username,
+                        @RequestParam String password,
+                        HttpServletRequest request) {
+        // 1. Authenticate
+        Authentication auth = loginAuthenticationProvider.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+        );
 
-        return ResponseEntity.ok("Login successful");
+        // 2. Store in security context
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+
+        // 3. Store context in session
+        HttpSession session = request.getSession(true);
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+
+        return "Login successful";
     }
 
     @PostMapping("/isLoggedIn")
     public ResponseEntity<?> isLoggedIn(HttpServletRequest request){
         HttpSession session = request.getSession(false);
-        if(Objects.isNull(session) || Objects.isNull(session.getAttribute("JSESSIONID"))){
+        if(Objects.isNull(session) || Objects.isNull(SecurityContextHolder.getContext().getAuthentication().getName())){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Please login first");
         }
         return ResponseEntity.status(HttpStatus.OK).body("Session is logged in");

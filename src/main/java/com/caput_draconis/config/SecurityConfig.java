@@ -72,7 +72,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public CookieSerializer cookieSerializer() {
         DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-        serializer.setSameSite("None"); // **Set SameSite to None**
+        serializer.setSameSite("Lax"); // **Set SameSite to None**
         serializer.setUseSecureCookie(false); // **Ensure this is false for HTTP**
         return serializer;
     }
