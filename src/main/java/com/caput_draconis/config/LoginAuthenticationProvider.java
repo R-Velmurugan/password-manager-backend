@@ -1,7 +1,6 @@
 package com.caput_draconis.config;
 
 import com.caput_draconis.domain.domain.User;
-import com.caput_draconis.repository.UserRepository;
 import com.caput_draconis.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -29,7 +28,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
-        User user = userService.findUserByUsername(authentication.getName());
+        User user = userService.findUserByUsername(username);
         if(Objects.isNull(user)) return null;
         if(!passwordEncoder.matches(password , user.getHashedPassword())) return null;
         return new UsernamePasswordAuthenticationToken(user , null , List.of(new SimpleGrantedAuthority("ROLE_USER")));
