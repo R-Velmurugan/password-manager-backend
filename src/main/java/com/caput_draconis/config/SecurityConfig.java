@@ -41,11 +41,21 @@ public class SecurityConfig implements WebMvcConfigurer {
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .anyRequest().authenticated()
                 )
-                .formLogin(AbstractHttpConfigurer::disable)
+                .formLogin(form -> form
+                        .successHandler(((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                        }))
+                        .failureHandler(((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                        }))
+                )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 );
-        ;
         return httpSecurity.build();
 
     }
