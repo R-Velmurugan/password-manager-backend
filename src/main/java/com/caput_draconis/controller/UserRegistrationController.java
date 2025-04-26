@@ -38,24 +38,6 @@ public class UserRegistrationController {
         return HttpStatus.CONFLICT;
     }
 
-//    @PostMapping("/login")
-//    public String login(@RequestParam String username,
-//                        @RequestParam String password,
-//                        HttpServletRequest request) {
-//        Authentication auth = loginAuthenticationProvider.authenticate(
-//                new UsernamePasswordAuthenticationToken(username, password)
-//        );
-//
-//        SecurityContext context = SecurityContextHolder.createEmptyContext();
-//        context.setAuthentication(auth);
-//        SecurityContextHolder.setContext(context);
-//
-//        HttpSession session = request.getSession(true);
-//        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
-//
-//        return "Login successful";
-//    }
-
     @PostMapping("/isLoggedIn")
     public ResponseEntity<?> isLoggedIn(HttpServletRequest request){
         HttpSession session = request.getSession(false);
