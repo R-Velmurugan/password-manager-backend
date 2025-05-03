@@ -20,4 +20,5 @@ public class Password {
     private String creationDate;
     private String updationDate;
     private String notes;
+    private String uname;
 }
