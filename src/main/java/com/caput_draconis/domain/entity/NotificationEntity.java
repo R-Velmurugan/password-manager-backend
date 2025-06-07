@@ -1,7 +1,8 @@
 package com.caput_draconis.domain.entity;
 
 
-import com.caput_draconis.util.JsonPasswordConverter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -16,18 +18,38 @@ import java.util.Map;
 @Builder
 
 @Entity
-@Table(name = "notifications")
+@Table(
+        name = "notifications",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"type", "username"})
+        //to ensure there is only one entry per user per type
+)
 public class NotificationEntity {
     @Id
-    private String id;
+    //type|username
+    private String uuid;
     private String type;
-
-    @Convert(converter = JsonPasswordConverter.class)
-    @Column(columnDefinition = "jsonb")
+    @Transient
+    private Map<String, Object> description;
     //json and jsonb are allowed. json stores as text with whitespaces and all duplicates are kept. Processing uses last duplicate.
     //jsonb is widely used. Json is converted to binary thus removing whitespaces. Last duplicate is kept. Can be indexed. Json indexing is limited.
-    private Map<String, Object> description;
+
+    @Column(name = "description" , columnDefinition = "jsonb")
+    private String descriptionAsJson;
+
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "username" , referencedColumnName = "username" , foreignKey = @ForeignKey(name = "username"))
+    @JoinColumn(name = "username", referencedColumnName = "username", foreignKey = @ForeignKey(name = "username"))
     private UserEntity userEntity;
+
+    public String getUsername() {
+        if (Objects.nonNull(userEntity)) return userEntity.getUsername();
+        return null;
+    }
+
+    public String getDescriptionAsJson() {
+        try {
+            return new ObjectMapper().writeValueAsString(description);
+        } catch (JsonProcessingException e) {
+            return "{}";
+        }
+    }
 }

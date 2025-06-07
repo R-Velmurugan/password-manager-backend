@@ -12,7 +12,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Notification {
-    String id;
+    String uuid;
     NotificationType type;
     Map<String, Object> description;
     String username;

@@ -37,18 +37,20 @@ public class NotificationServiceImpl implements NotificationService {
         return List.of();
     }
 
-    private NotificationEntity convertNotificationToNotificationEntity(Notification notification) {
+    @Override
+    public NotificationEntity convertNotificationToNotificationEntity(Notification notification) {
         return NotificationEntity.builder()
-                .id(notification.getId())
+                .uuid(notification.getUuid())
                 .type(notification.getType().getNotificationType())
                 .description(notification.getDescription())
                 .userEntity(userRepository.findByUsername(notification.getUsername()).get(0))
                 .build();
     }
 
-    private Notification convertNotificationEntityToNotification(NotificationEntity notificationEntity) {
+    @Override
+    public Notification convertNotificationEntityToNotification(NotificationEntity notificationEntity) {
         return Notification.builder()
-                .id(notificationEntity.getId())
+                .uuid(notificationEntity.getUuid())
                 .type(Notification.NotificationType.valueOf(notificationEntity.getType()))
                 .description(notificationEntity.getDescription())
                 .username(notificationEntity.getUserEntity().getUsername())
