@@ -40,7 +40,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationEntity convertNotificationToNotificationEntity(Notification notification) {
         return NotificationEntity.builder()
-                .uuid(notification.getUuid())
+                .uuid(notification.getUuid()) //return NE
                 .type(notification.getType().getNotificationType())
                 .description(notification.getDescription())
                 .userEntity(userRepository.findByUsername(notification.getUsername()).get(0))

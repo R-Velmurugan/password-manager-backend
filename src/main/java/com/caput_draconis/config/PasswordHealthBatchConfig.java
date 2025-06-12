@@ -103,10 +103,24 @@ public class PasswordHealthBatchConfig {
     public JdbcBatchItemWriter<NotificationEntity> notificationWriter() {
         return new JdbcBatchItemWriterBuilder<NotificationEntity>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+                //CAST(:descriptionAsJson AS jsonb)  is equivalent to :descriptionAsJson::jsonb
+                //JSONB_SET(column , path to update in json , value to update , create if missing)
+                //-> means return the 'password_expired' present in notifications.description
+                //->> will give the same in string format
+                //COALESCE will return the first non-null value => if notifications.description->'password_expired' is null, return an empty json array
                 .sql("""
                         INSERT INTO notifications (uuid , type , description , username)
-                        VALUES(:uuid , :type , CAST(:descriptionAsJson AS jsonb) , :username)
-                        ON CONFLICT(uuid) DO UPDATE SET description = EXCLUDED.description
+                        VALUES(:uuid , :type , :descriptionAsJson::jsonb , :username)
+                        ON CONFLICT(uuid) DO UPDATE
+                            JSONB_SET(
+                                notifications.description,
+                                '{password_expired}',
+                                (
+                                    COALESCE(notifications.description->'password_expired' , '[]'::jsonb) ||
+                                    COALESCE(EXCLUDED.description->'password_expired' , '[]'::jsonb)
+                                ),
+                                true
+                            )
                     """)
                 .dataSource(dataSource)
                 .build();
