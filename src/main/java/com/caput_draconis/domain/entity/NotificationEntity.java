@@ -3,6 +3,7 @@ package com.caput_draconis.domain.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,8 +29,6 @@ public class NotificationEntity {
     //type|username
     private String uuid;
     private String type;
-    @Transient
-    private Map<String, Object> description;
     //json and jsonb are allowed. json stores as text with whitespaces and all duplicates are kept. Processing uses last duplicate.
     //jsonb is widely used. Json is converted to binary thus removing whitespaces. Last duplicate is kept. Can be indexed. Json indexing is limited.
 
@@ -45,11 +44,12 @@ public class NotificationEntity {
         return null;
     }
 
-    public String getDescriptionAsJson() {
+    @Nullable
+    public Map<String , Object> getDescription() {
         try {
-            return new ObjectMapper().writeValueAsString(description);
+            return new ObjectMapper().readValue(descriptionAsJson , Map.class);
         } catch (JsonProcessingException e) {
-            return "{}";
+            return null;
         }
     }
 }

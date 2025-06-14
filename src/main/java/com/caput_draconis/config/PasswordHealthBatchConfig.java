@@ -80,23 +80,12 @@ public class PasswordHealthBatchConfig {
     }
 
     public ItemProcessor<Password, NotificationEntity> passwordProcessor(@Nonnull final Notification.NotificationType notificationType) {
-        return password -> {
-            Optional<NotificationEntity> existingNotification = notificationRepository.findNotificationByUuid(notificationType.getNotificationType().concat("|").concat(password.getUname()));
-            if(existingNotification.isPresent()) {
-                Object passwordUuids = existingNotification.get().getDescription().get(notificationType.getNotificationType());
-                Set<String> passwordUuidsList = (Set<String>) passwordUuids;
-                passwordUuidsList.add(password.getUuid());
-                return existingNotification.get();
-            }
-            else{
-                return notificationService.convertNotificationToNotificationEntity(Notification.builder()
-                        .uuid(notificationType.getNotificationType().concat("|").concat(password.getUname()))
-                        .type(Notification.NotificationType.PASSWORD_EXPIRED)
-                        .description(Map.of(Notification.NotificationType.PASSWORD_EXPIRED.getNotificationType() , Set.of(password.getUuid())))
-                        .username(password.getUname())
-                        .build());
-            }
-        };
+        return password -> notificationService.convertNotificationToNotificationEntity(Notification.builder()
+            .uuid(notificationType.getNotificationType().concat("|").concat(password.getUname()))
+            .type(Notification.NotificationType.PASSWORD_EXPIRED)
+            .description(Map.of(Notification.NotificationType.PASSWORD_EXPIRED.getNotificationType() , Set.of(password.getUuid())))
+            .username(password.getUname())
+            .build());
     }
 
     @Bean
@@ -108,16 +97,21 @@ public class PasswordHealthBatchConfig {
                 //-> means return the 'password_expired' present in notifications.description
                 //->> will give the same in string format
                 //COALESCE will return the first non-null value => if notifications.description->'password_expired' is null, return an empty json array
+                //jsonb_array_elements_text -> flatten into individual text elements
+                //jsonb_agg -> combine into one array
                 .sql("""
                         INSERT INTO notifications (uuid , type , description , username)
                         VALUES(:uuid , :type , :descriptionAsJson::jsonb , :username)
                         ON CONFLICT(uuid) DO UPDATE
-                            JSONB_SET(
+                        SET description = JSONB_SET(
                                 notifications.description,
                                 '{password_expired}',
                                 (
-                                    COALESCE(notifications.description->'password_expired' , '[]'::jsonb) ||
-                                    COALESCE(EXCLUDED.description->'password_expired' , '[]'::jsonb)
+                                    SELECT jsonb_agg(DISTINCT expired_passwords)
+                                    FROM jsonb_array_elements_text(
+                                        COALESCE(notifications.description->'password_expired' , '[]'::jsonb) ||
+                                        COALESCE(EXCLUDED.description->'password_expired' , '[]'::jsonb)
+                                    ) AS expired_passwords
                                 ),
                                 true
                             )
