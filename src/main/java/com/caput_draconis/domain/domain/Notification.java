@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -26,6 +27,15 @@ public class Notification {
         private final String notification;
         NotificationType(String notification){
             this.notification = notification;
+        }
+
+        private static Map<String, NotificationType> notificationLookup = new HashMap<>();
+        static{
+            notificationLookup.put("password_expired", NotificationType.PASSWORD_EXPIRED);
+        }
+
+        public static NotificationType getNotificationType(String notificationType) {
+            return notificationLookup.get(notificationType);
         }
     }
 }

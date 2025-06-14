@@ -1,7 +1,9 @@
 package com.caput_draconis.query;
 
 import com.caput_draconis.domain.domain.InputPassword;
+import com.caput_draconis.domain.domain.Notification;
 import com.caput_draconis.domain.domain.Password;
+import com.caput_draconis.service.NotificationService;
 import com.caput_draconis.service.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -14,15 +16,22 @@ import java.util.List;
 @Controller
 public class Query {
     private final PasswordService passwordService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public Query(PasswordService passwordService){
+    public Query(PasswordService passwordService , NotificationService notificationService) {
         this.passwordService = passwordService;
+        this.notificationService = notificationService;
     }
 
     @QueryMapping
     public List<Password> passwords(@Argument("isActive") Boolean isActive){
         return passwordService.getAllActiveOrTrashPasswords(isActive);
+    }
+
+    @QueryMapping
+    public List<Notification> notifications(@Argument("type") List<String> types , @Argument("username") String username){
+        return notificationService.getAllNotificationsByUsernameAndTypes(username, types);
     }
 
     @MutationMapping

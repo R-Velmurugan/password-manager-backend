@@ -1,6 +1,7 @@
 type Query{
     passwords(isActive : Boolean) : [Password]
     password(uuid : String) : Password
+    notifications(type : [String] , username : String) : [Notification]
 }
 type Password{
     uuid : String
@@ -12,5 +13,12 @@ type Password{
     creationDate : String
     updationDate : String
     notes : String
+}
+
+type Notification{
+    uuid : String
+    type : String
+    username : String
+    description : String
 }
 
