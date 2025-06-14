@@ -50,16 +50,4 @@ public class UserRegistrationController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
-
-    @GetMapping("/job")
-    public void getJob(){
-        try {
-            jobLauncher.run(job , new JobParametersBuilder()
-                    .addLong("time", System.currentTimeMillis())
-                    .toJobParameters());
-        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
-                 JobParametersInvalidException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
