@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -45,9 +45,9 @@ public class NotificationEntity {
     }
 
     @Nullable
-    public Map<String , Object> getDescription() {
+    public List<String> getDescription() {
         try {
-            return new ObjectMapper().readValue(descriptionAsJson , Map.class);
+            return new ObjectMapper().readValue(descriptionAsJson , List.class);
         } catch (JsonProcessingException e) {
             return null;
         }

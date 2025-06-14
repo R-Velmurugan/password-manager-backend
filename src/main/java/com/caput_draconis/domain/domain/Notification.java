@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -15,7 +16,7 @@ import java.util.Map;
 public class Notification {
     String uuid;
     NotificationType type;
-    Map<String, Object> description;
+    List<String> description;
     String username;
 
     public enum NotificationType {

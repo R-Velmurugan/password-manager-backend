@@ -83,7 +83,7 @@ public class PasswordHealthBatchConfig {
         return password -> notificationService.convertNotificationToNotificationEntity(Notification.builder()
             .uuid(notificationType.getNotificationType().concat("|").concat(password.getUname()))
             .type(Notification.NotificationType.PASSWORD_EXPIRED)
-            .description(Map.of(Notification.NotificationType.PASSWORD_EXPIRED.getNotificationType() , Set.of(password.getUuid())))
+            .description(List.of(password.getUuid()))
             .username(password.getUname())
             .build());
     }
@@ -93,29 +93,23 @@ public class PasswordHealthBatchConfig {
         return new JdbcBatchItemWriterBuilder<NotificationEntity>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 //CAST(:descriptionAsJson AS jsonb)  is equivalent to :descriptionAsJson::jsonb
-                //JSONB_SET(column , path to update in json , value to update , create if missing)
-                //-> means return the 'password_expired' present in notifications.description
-                //->> will give the same in string format
                 //COALESCE will return the first non-null value => if notifications.description->'password_expired' is null, return an empty json array
                 //jsonb_array_elements_text -> flatten into individual text elements
                 //jsonb_agg -> combine into one array
                 .sql("""
                         INSERT INTO notifications (uuid , type , description , username)
-                        VALUES(:uuid , :type , :descriptionAsJson::jsonb , :username)
-                        ON CONFLICT(uuid) DO UPDATE
-                        SET description = JSONB_SET(
-                                notifications.description,
-                                '{password_expired}',
-                                (
-                                    SELECT jsonb_agg(DISTINCT expired_passwords)
-                                    FROM jsonb_array_elements_text(
-                                        COALESCE(notifications.description->'password_expired' , '[]'::jsonb) ||
-                                        COALESCE(EXCLUDED.description->'password_expired' , '[]'::jsonb)
+                        	VALUES(:uuid , :type , :descriptionAsJson::jsonb , :username)
+                        	ON CONFLICT(uuid) DO UPDATE
+                        	SET description = (
+                                SELECT jsonb_agg(DISTINCT expired_passwords)
+                                FROM (
+                                    SELECT jsonb_array_elements_text(
+                                        COALESCE(notifications.description , '[]'::jsonb) ||
+                                        COALESCE(EXCLUDED.description , '[]'::jsonb)
                                     ) AS expired_passwords
-                                ),
-                                true
+                                ) AS merged
                             )
-                    """)
+                """)
                 .dataSource(dataSource)
                 .build();
     }
