@@ -4,8 +4,6 @@ import com.caput_draconis.domain.domain.User;
 import com.caput_draconis.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +19,10 @@ public class UserRegistrationController {
 
     private final UserService userService;
 
-    private final JobLauncher jobLauncher;
-    private final Job job;
 
     @Autowired
-    public UserRegistrationController(UserService userService , JobLauncher jobLauncher , Job passwordHealthJob) {
+    public UserRegistrationController(UserService userService) {
         this.userService = userService;
-        this.jobLauncher = jobLauncher;
-        this.job = passwordHealthJob;
     }
 
     @PostMapping("/register")
