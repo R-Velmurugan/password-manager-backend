@@ -12,6 +12,7 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class Query {
@@ -27,6 +28,13 @@ public class Query {
     @QueryMapping
     public List<Password> passwords(@Argument("isActive") Boolean isActive){
         return passwordService.getAllActiveOrTrashPasswords(isActive);
+    }
+
+    @QueryMapping
+    public List<Password> multiplePasswords(@Argument("uuids") List<String> uuids ){
+        return uuids.stream()
+                .map(passwordService :: getPasswordByUuid)
+                .collect(Collectors.toList());
     }
 
     @QueryMapping
