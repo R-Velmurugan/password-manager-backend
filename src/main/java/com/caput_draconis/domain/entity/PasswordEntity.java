@@ -1,8 +1,6 @@
 package com.caput_draconis.domain.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,4 +26,7 @@ public class PasswordEntity {
     private Date updated_at;
     private String notes;
     private Boolean isDeleted;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "uname", referencedColumnName = "username", foreignKey = @ForeignKey(name = "username"))
+    private UserEntity uname;
 }
