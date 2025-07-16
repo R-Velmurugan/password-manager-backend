@@ -3,7 +3,9 @@ package com.caput_draconis.service.impl;
 import com.caput_draconis.domain.domain.InputPassword;
 import com.caput_draconis.domain.domain.Password;
 import com.caput_draconis.domain.entity.PasswordEntity;
+import com.caput_draconis.domain.entity.UserEntity;
 import com.caput_draconis.repository.PasswordRepository;
+import com.caput_draconis.repository.UserRepository;
 import com.caput_draconis.service.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,14 +21,17 @@ import java.util.stream.Collectors;
 @Service
 public class PasswordServiceImpl implements PasswordService {
     private final PasswordRepository passwordRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public PasswordServiceImpl(PasswordRepository passwordRepository){
+    public PasswordServiceImpl(PasswordRepository passwordRepository, UserRepository userRepository){
         this.passwordRepository = passwordRepository;
+        this.userRepository = userRepository;
     }
     @Override
-    public List<Password> getAllActiveOrTrashPasswords(Boolean isActive) {
-        List<PasswordEntity> allPasswords = passwordRepository.findAllActiveOrTrashPasswords(isActive);
+    public List<Password> getAllActiveOrTrashPasswords(Boolean isActive, String username) {
+        UserEntity userEntity = userRepository.findByUsername(username).get(0);
+        List<PasswordEntity> allPasswords = passwordRepository.findAllActiveOrTrashPasswords(isActive , userEntity);
 
         return allPasswords.stream()
                 .map(this::convertPasswordEntityToPasswordDto)
@@ -51,8 +56,9 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public Password getPasswordByUuid(String uuid){
-        PasswordEntity passwordEntity = passwordRepository.getReferenceById(uuid);
+    public Password getPasswordByUuid(String uuid, String username){
+        UserEntity userEntity = userRepository.findByUsername(username).get(0);
+        PasswordEntity passwordEntity = passwordRepository.getReferenceByUuidAndUname(uuid , userEntity);
         return convertPasswordEntityToPasswordDto(passwordEntity);
     }
     @Override

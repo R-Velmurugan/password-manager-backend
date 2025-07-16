@@ -12,12 +12,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Scheduler {
+public class PasswordHealthScheduler {
     private final Job job;
     private final JobLauncher jobLauncher;
 
     @Autowired
-    public Scheduler(Job job, JobLauncher jobLauncher) {
+    public PasswordHealthScheduler(Job job, JobLauncher jobLauncher) {
         this.job = job;
         this.jobLauncher = jobLauncher;
     }
