@@ -24,4 +24,5 @@ public class UserEntity {
     private String email;
     private Date created_at;
     private Date updated_at;
+    private byte[] salt;
 }

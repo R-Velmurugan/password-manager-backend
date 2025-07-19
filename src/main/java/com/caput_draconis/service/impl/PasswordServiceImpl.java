@@ -7,10 +7,12 @@ import com.caput_draconis.domain.entity.UserEntity;
 import com.caput_draconis.repository.PasswordRepository;
 import com.caput_draconis.repository.UserRepository;
 import com.caput_draconis.service.PasswordService;
+import com.caput_draconis.util.CryptoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.SecretKey;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,6 +42,7 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public Password savePassword(InputPassword inputPassword){
+        UserEntity userEntity = userRepository.findByUsername(inputPassword.getUname()).get(0);
         Password password = Password.builder()
                 .uuid(UUID.randomUUID().toString())
                 .domain(inputPassword.getDomain())
@@ -51,7 +54,7 @@ public class PasswordServiceImpl implements PasswordService {
                 .updationDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
                 .notes(inputPassword.getNotes())
                 .build();
-        passwordRepository.save(convertPasswordToPasswordEntity(password));
+        passwordRepository.save(convertPasswordToPasswordEntity(password , userEntity , inputPassword.getMasterPassword()));
         return password;
     }
 
@@ -79,22 +82,23 @@ public class PasswordServiceImpl implements PasswordService {
         return passwordRepository.restorePassword(uuid) == 1;
     }
 
-    private PasswordEntity convertPasswordToPasswordEntity(Password password){
+    private PasswordEntity convertPasswordToPasswordEntity(Password password, UserEntity userEntity, String masterPassword){
+        final byte [] salt = userEntity.getSalt();
+        final SecretKey key = CryptoUtils.deriveKeyForEncryption(masterPassword , salt);
+        final String encryptedPassword = CryptoUtils.encryptPassword(password.getPassword(), key);
+
         return PasswordEntity.builder()
                 .uuid(password.getUuid())
                 .domain_name(password.getDomain())
                 .url(password.getUrl())
                 .username(password.getUsername())
                 .email(password.getEmail())
-                .password(password.getPassword())
-                .created_at(
-                        convertStringToDate(password.getCreationDate())
-                )
-                .updated_at(
-                        convertStringToDate(password.getUpdationDate())
-                )
+                .password(encryptedPassword)
+                .created_at(convertStringToDate(password.getCreationDate()))
+                .updated_at(convertStringToDate(password.getUpdationDate()))
                 .notes(password.getNotes())
                 .isDeleted(false)
+                .uname(userEntity)
                 .build();
     }
 
