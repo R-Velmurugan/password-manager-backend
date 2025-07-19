@@ -31,12 +31,12 @@ public class PasswordServiceImpl implements PasswordService {
         this.userRepository = userRepository;
     }
     @Override
-    public List<Password> getAllActiveOrTrashPasswords(Boolean isActive, String username) {
+    public List<Password> getAllActiveOrTrashPasswords(Boolean isActive, String username, String masterPassword) {
         UserEntity userEntity = userRepository.findByUsername(username).get(0);
         List<PasswordEntity> allPasswords = passwordRepository.findAllActiveOrTrashPasswords(isActive , userEntity);
 
         return allPasswords.stream()
-                .map(this::convertPasswordEntityToPasswordDto)
+                .map(passwordEntity -> convertPasswordEntityToPasswordDto(passwordEntity, masterPassword, userEntity))
                 .collect(Collectors.toList());
     }
 
@@ -59,10 +59,10 @@ public class PasswordServiceImpl implements PasswordService {
     }
 
     @Override
-    public Password getPasswordByUuid(String uuid, String username){
+    public Password getPasswordByUuid(String uuid, String username, String masterPassword){
         UserEntity userEntity = userRepository.findByUsername(username).get(0);
         PasswordEntity passwordEntity = passwordRepository.getReferenceByUuidAndUname(uuid , userEntity);
-        return convertPasswordEntityToPasswordDto(passwordEntity);
+        return convertPasswordEntityToPasswordDto(passwordEntity, masterPassword, userEntity);
     }
     @Override
     @Transactional
@@ -112,14 +112,17 @@ public class PasswordServiceImpl implements PasswordService {
         return new Date();
     }
 
-    private Password convertPasswordEntityToPasswordDto(PasswordEntity passwordEntity){
+    private Password convertPasswordEntityToPasswordDto(PasswordEntity passwordEntity, String masterPassword, UserEntity userEntity){
+        SecretKey key = CryptoUtils.deriveKeyForEncryption(masterPassword , userEntity.getSalt());
+        final String encryptedPassword = passwordEntity.getPassword();
+        final String decryptedPassword = CryptoUtils.decryptPassword(encryptedPassword, key);
         return Password.builder()
                 .uuid(passwordEntity.getUuid())
                 .domain(passwordEntity.getDomain_name())
                 .url(passwordEntity.getUrl())
                 .username(passwordEntity.getUsername())
                 .email(passwordEntity.getEmail())
-                .password(passwordEntity.getPassword())
+                .password(decryptedPassword)
                 .creationDate(passwordEntity.getCreated_at().toString())
                 .updationDate(passwordEntity.getUpdated_at().toString())
                 .notes(passwordEntity.getNotes())

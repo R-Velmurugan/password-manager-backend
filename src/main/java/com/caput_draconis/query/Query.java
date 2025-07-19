@@ -26,14 +26,14 @@ public class Query {
     }
 
     @QueryMapping
-    public List<Password> passwords(@Argument("isActive") Boolean isActive , @Argument("username") String username) {
-        return passwordService.getAllActiveOrTrashPasswords(isActive , username);
+    public List<Password> passwords(@Argument("isActive") Boolean isActive , @Argument("username") String username , @Argument("masterPassword") String masterPassword) {
+        return passwordService.getAllActiveOrTrashPasswords(isActive , username, masterPassword);
     }
 
     @QueryMapping
     public List<Password> multiplePasswords(@Argument("uuids") List<String> uuids , @Argument("username") String username) {
         return uuids.stream()
-                .map(uuid -> passwordService.getPasswordByUuid(uuid , username))
+                .map(uuid -> passwordService.getPasswordByUuid(uuid , username, null))
                 .collect(Collectors.toList());
     }
 
@@ -52,8 +52,8 @@ public class Query {
         return passwordService.movePasswordToTrash(uuid);
     }
     @QueryMapping
-    public Password password(@Argument("uuid") String uuid , @Argument("username") String username){
-        return passwordService.getPasswordByUuid(uuid , username );
+    public Password password(@Argument("uuid") String uuid , @Argument("username") String username , @Argument("masterPassword") String masterPassword){
+        return passwordService.getPasswordByUuid(uuid , username, masterPassword);
     }
 
     @MutationMapping
