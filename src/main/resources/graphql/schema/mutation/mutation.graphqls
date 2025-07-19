@@ -4,6 +4,8 @@ input InputPassword{
     username : String!
     email : String!
     password : String!
+    uname : String!
+    masterPassword : String!
     notes : String
 }
 

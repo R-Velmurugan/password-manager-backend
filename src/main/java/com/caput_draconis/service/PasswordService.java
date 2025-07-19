@@ -6,9 +6,9 @@ import com.caput_draconis.domain.domain.Password;
 import java.util.List;
 
 public interface PasswordService {
-    List<Password> getAllActiveOrTrashPasswords(Boolean isActive, String username);
+    List<Password> getAllActiveOrTrashPasswords(Boolean isActive, String username, String masterPassword);
     Password savePassword(InputPassword password);
-    Password getPasswordByUuid(String uuid, String username);
+    Password getPasswordByUuid(String uuid, String username, String masterPassword);
     Boolean movePasswordToTrash(String uuid);
     Boolean updatePassword(String uuid , String password);
     Boolean restorePassword(String uuid);

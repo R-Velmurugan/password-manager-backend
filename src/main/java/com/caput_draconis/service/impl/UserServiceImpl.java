@@ -4,6 +4,7 @@ import com.caput_draconis.domain.domain.User;
 import com.caput_draconis.domain.entity.UserEntity;
 import com.caput_draconis.repository.UserRepository;
 import com.caput_draconis.service.UserService;
+import com.caput_draconis.util.CryptoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,6 +57,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .created_at(user.getCreatedAt())
                 .updated_at(user.getUpdatedAt())
+                .salt(CryptoUtils.getSalt())
                 .build();
     }
 }

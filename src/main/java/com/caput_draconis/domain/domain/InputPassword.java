@@ -16,4 +16,6 @@ public class InputPassword {
     private String email;
     private String password;
     private String notes;
+    private String uname;
+    private String masterPassword;
 }
