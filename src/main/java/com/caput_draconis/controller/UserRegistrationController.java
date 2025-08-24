@@ -26,11 +26,11 @@ public class UserRegistrationController {
     }
 
     @PostMapping("/register")
-    public HttpStatus registerUser(@RequestBody final User user){
+    public ResponseEntity<User> registerUser(@RequestBody final User user){
         if(userService.registerUser(user)){
-            return HttpStatus.CREATED;
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
         }
-        return HttpStatus.CONFLICT;
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
     }
 
     @PostMapping("/isLoggedIn")

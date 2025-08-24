@@ -8,14 +8,12 @@ import com.caput_draconis.repository.PasswordRepository;
 import com.caput_draconis.repository.UserRepository;
 import com.caput_draconis.service.PasswordService;
 import com.caput_draconis.util.CryptoUtils;
+import com.caput_draconis.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,6 +41,7 @@ public class PasswordServiceImpl implements PasswordService {
     @Override
     public Password savePassword(InputPassword inputPassword){
         UserEntity userEntity = userRepository.findByUsername(inputPassword.getUname()).get(0);
+        final String currentDateTime = Utils.getCurrentDateTime();
         Password password = Password.builder()
                 .uuid(UUID.randomUUID().toString())
                 .domain(inputPassword.getDomain())
@@ -50,8 +49,8 @@ public class PasswordServiceImpl implements PasswordService {
                 .email(inputPassword.getEmail())
                 .username(inputPassword.getUsername())
                 .password(inputPassword.getPassword())
-                .creationDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
-                .updationDate(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()))
+                .creationDate(currentDateTime)
+                .updationDate(currentDateTime)
                 .notes(inputPassword.getNotes())
                 .build();
         passwordRepository.save(convertPasswordToPasswordEntity(password , userEntity , inputPassword.getMasterPassword()));
@@ -94,22 +93,12 @@ public class PasswordServiceImpl implements PasswordService {
                 .username(password.getUsername())
                 .email(password.getEmail())
                 .password(encryptedPassword)
-                .created_at(convertStringToDate(password.getCreationDate()))
-                .updated_at(convertStringToDate(password.getUpdationDate()))
+                .created_at(Utils.convertStringToDate(password.getCreationDate()))
+                .updated_at(Utils.convertStringToDate(password.getUpdationDate()))
                 .notes(password.getNotes())
                 .isDeleted(false)
                 .uname(userEntity)
                 .build();
-    }
-
-    private Date convertStringToDate(String date){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        try {
-            return simpleDateFormat.parse(date);
-        } catch (ParseException e) {
-            System.out.println(e.getMessage());
-        }
-        return new Date();
     }
 
     private Password convertPasswordEntityToPasswordDto(PasswordEntity passwordEntity, String masterPassword, UserEntity userEntity){
