@@ -1,7 +1,7 @@
 type Query{
     passwords(isActive : Boolean , username : String , masterPassword : String) : [Password]
     password(uuid : String , username : String , masterPassword : String) : Password
-    multiplePasswords(uuids : [String] , username : String) : [Password]
+    multiplePasswords(uuids : [String] , username : String , masterPassword: String) : [Password]
     notifications(type : [String] , username : String) : [Notification]
 }
 type Password{
