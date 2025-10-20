@@ -31,9 +31,9 @@ public class Query {
     }
 
     @QueryMapping
-    public List<Password> multiplePasswords(@Argument("uuids") List<String> uuids , @Argument("username") String username) {
+    public List<Password> multiplePasswords(@Argument("uuids") List<String> uuids , @Argument("username") String username , @Argument("masterPassword") String masterPassword) {
         return uuids.stream()
-                .map(uuid -> passwordService.getPasswordByUuid(uuid , username, null))
+                .map(uuid -> passwordService.getPasswordByUuid(uuid , username, masterPassword))
                 .collect(Collectors.toList());
     }
 

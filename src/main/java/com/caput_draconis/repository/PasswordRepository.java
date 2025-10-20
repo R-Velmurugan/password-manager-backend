@@ -33,4 +33,5 @@ public interface PasswordRepository extends JpaRepository<PasswordEntity , Strin
 
     PasswordEntity getReferenceByUuidAndUname(String uuid, UserEntity uname);
 
+    List<PasswordEntity> findByUuidAndUname_Username(String uuid, String username);
 }

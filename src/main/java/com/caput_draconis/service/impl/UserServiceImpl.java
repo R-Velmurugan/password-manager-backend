@@ -5,6 +5,7 @@ import com.caput_draconis.domain.entity.UserEntity;
 import com.caput_draconis.repository.UserRepository;
 import com.caput_draconis.service.UserService;
 import com.caput_draconis.util.CryptoUtils;
+import com.caput_draconis.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean registerUser(User user) {
         user.setHashedPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCreatedAt(Utils.getCurrentDateTime());
+        user.setUpdatedAt(Utils.getCurrentDateTime());
         UserEntity userEntity = convertUserToUserEntity(user);
 
         if(userRepository.existsById(user.getUsername())) return false;
@@ -45,8 +48,8 @@ public class UserServiceImpl implements UserService {
                 .username(userEntity.getUsername())
                 .hashedPassword(userEntity.getPassword())
                 .email(userEntity.getEmail())
-                .createdAt(userEntity.getCreated_at())
-                .updatedAt(userEntity.getUpdated_at())
+                .createdAt(userEntity.getCreated_at().toString())
+                .updatedAt(userEntity.getUpdated_at().toString())
                 .build();
     }
 
@@ -55,8 +58,8 @@ public class UserServiceImpl implements UserService {
                 .username(user.getUsername())
                 .password(user.getHashedPassword())
                 .email(user.getEmail())
-                .created_at(user.getCreatedAt())
-                .updated_at(user.getUpdatedAt())
+                .created_at(Utils.convertStringToDate(user.getCreatedAt()))
+                .updated_at(Utils.convertStringToDate(user.getUpdatedAt()))
                 .salt(CryptoUtils.getSalt())
                 .build();
     }
